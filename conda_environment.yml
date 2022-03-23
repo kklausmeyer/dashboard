@@ -1,0 +1,11 @@
+name: dashboard
+channels:
+    - conda-forge
+dependencies:
+    - python
+    - pandas
+    - jupyter
+    - plotly
+    - matplotlib
+    - ulmo
+
