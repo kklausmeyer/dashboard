@@ -4,17 +4,30 @@ import pandas as pd
 import numpy as np
 import os
 import plotly.express as px
+from datetime import date
+#date = date.today().strftime("%Y%m%d")
+date = '20220331'
+
 
 st.title('California Strategies: 2030 Outcomes')
 col1, col2 = st.columns([2,2])
 
+
+
 outer_dir = os.path.split(os.getcwd())[0]
 in_table = os.path.join(outer_dir, 'CA_strategy_dashboard_metrics_v1.2_Apr_2022.xlsx')
+in_points = os.path.join(outer_dir, 'ca_strategy_points_{}.csv'.format(date))
+
+# Read in strategy table
 df = pd.read_excel(in_table, sheet_name='CA_strategy_outcomes')
 df = df.astype(str)
 df = df.replace(['nan'],np.NaN)
 df = df.dropna(how='any', thresh=6).reset_index()
 df['unique_id'] = df.program + "_" + df.strategy + "_" + df.outcome
+
+# Read in point table
+dfp = pd.read_csv(in_points)
+dfp = pd.merge(dfp, df, on='unique_id', how='outer')
 
 with col2:
     st.map()
@@ -30,8 +43,8 @@ def human_format(num):
 
 # Create a horizontal bar chart
 def strategy_chart(unique_id):
-    df1 = df.loc[df.unique_id == unique_id]
-    df1['2025 progress estimate'] = df1['2025 progress estimate'].astype(float)
+    df1 = dfp.loc[dfp.unique_id == unique_id]
+    #df1['2025 progress estimate'] = df1['2025 progress estimate'].astype(float)
     fig = px.bar(df1, x="2025 progress estimate", y="outcome", orientation='h', height=40, width=500)
     fig.update_traces(marker_color='rgb(55,127,49)',
                       marker_line_width=0,
