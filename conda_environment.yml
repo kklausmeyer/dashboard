@@ -9,4 +9,5 @@ dependencies:
     - matplotlib
     - ulmo
     - openpyxl
+    - geopandas
 
