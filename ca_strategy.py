@@ -3,8 +3,10 @@ st.set_page_config(layout="wide")
 import pandas as pd
 import numpy as np
 import os
+from os.path import exists
 import plotly.express as px
 from datetime import date
+from PIL import Image
 #date = date.today().strftime("%Y%m%d")
 date = '20220331'
 
@@ -14,7 +16,7 @@ date = '20220331'
 
 
 outer_dir = os.path.split(os.getcwd())[0]
-in_table = os.path.join(outer_dir, 'CA_strategy_dashboard_metrics_v1.2_Apr_2022.xlsx')
+in_table = os.path.join(os.getcwd(), 'tables', 'CA_strategy_dashboard_metrics_v1.2_Apr_2022.xlsx')
 in_points = os.path.join(outer_dir, 'ca_strategy_points_{}.csv'.format(date))
 
 # Read in strategy table
@@ -96,7 +98,9 @@ def strategy_chart(unique_id):
 
 
 
+
 st.title('California Strategies: 2030 Outcomes')
+
 
 col1, col2, col3, col4 = st.columns(4)
 
@@ -112,16 +116,18 @@ for index, row in df.iterrows():
         i += 1
         with prog_col:
             st.header(prog)
-        
-        #prog_cont = st.expander(prog, prog == "Land")
-        #with prog_cont:
             
     with prog_col:
-        #st.header(prog)
+        
         if strat != prev_strat:
             container = st.container()
             with container:
-                st.subheader(strat)
+                img_path = os.path.join(os.getcwd(),'graphics','{}.png'.format(strat))
+                if exists(img_path):
+                    image = Image.open(img_path)
+                    st.image(image, width = 300)
+                else:
+                    st.subheader(strat)
         with container:
             st.plotly_chart(strategy_chart(row['unique_id']), use_container_width=True)
 
