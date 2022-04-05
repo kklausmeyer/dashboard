@@ -9,8 +9,7 @@ from datetime import date
 date = '20220331'
 
 
-st.title('California Strategies: 2030 Outcomes')
-col1, col2 = st.columns([2,2])
+
 
 
 
@@ -26,12 +25,13 @@ df = df.dropna(how='any', thresh=6).reset_index()
 df['unique_id'] = df.program + "_" + df.strategy + "_" + df.outcome
 
 # Read in point table
-dfp = pd.read_csv(in_points)
-dfp = pd.merge(dfp, df, on='unique_id', how='outer')
+dfp1 = pd.read_csv(in_points)
+dfp = pd.merge(dfp1, df, on='unique_id', how='outer')
+#dfp['latitude'] = dfp['latitude'].astype(float)
+#dfp['longitude'] = dfp['longitude'].astype(float)
 
-with col2:
-    st.map()
-    st.dataframe(df)
+
+
 
 def human_format(num):
     magnitude = 0
@@ -39,16 +39,27 @@ def human_format(num):
         magnitude += 1
         num /= 1000.0
     # add more suffixes if you need them
-    return '%.0f%s' % (num, ['', 'K', 'M', 'G', 'T', 'P'][magnitude])
+    return '%.0f%s' % (num, ['', 'K', 'M', 'B', 'T', 'P'][magnitude])
 
 # Create a horizontal bar chart
+@st.cache
 def strategy_chart(unique_id):
     df1 = dfp.loc[dfp.unique_id == unique_id]
     #df1['2025 progress estimate'] = df1['2025 progress estimate'].astype(float)
-    fig = px.bar(df1, x="2025 progress estimate", y="outcome", orientation='h', height=40, width=500)
+    fig = px.bar(df1,
+                 x="area_acres",
+                 y="outcome",
+                 #hover_name="name",
+                 #hovertext="name",
+                 orientation='h',
+                 height=40,
+                 width=500,
+                 )
     fig.update_traces(marker_color='rgb(55,127,49)',
-                      marker_line_width=0,
+                      marker_line_width=1,
+                      marker_line_color='rgb(40,110,30)',
                       width=100,
+                      hovertext="name",
                       )
     fig.update_yaxes(ticklabelposition="inside",
                      title=None,
@@ -84,31 +95,41 @@ def strategy_chart(unique_id):
 
 
 
-unique_ids = df.unique_id.unique().tolist()
-with col1:
 
-    # Add program and strategy to containers
-    prev_prog = ""
-    prev_strat = ""
-    for index, row in df.iterrows():
-        prog = row['program']
-        strat = row['strategy']
-        if prog != prev_prog:
-            prog_cont = st.container()
-            with prog_cont:
-                st.header(prog)
-        with prog_cont:
-            if strat != prev_strat:
-                container = st.container()
-                with container:
-                    st.subheader(strat)
-            with container:
-                st.plotly_chart(strategy_chart(row['unique_id']), use_container_width=True)
+st.title('California Strategies: 2030 Outcomes')
 
-        prev_prog = prog
-        prev_strat = strat
+col1, col2, col3, col4 = st.columns(4)
+
+# Add program and strategy to containers
+prev_prog = ""
+prev_strat = ""
+i = 1
+for index, row in df.iterrows():
+    prog = row['program']
+    strat = row['strategy']
+    if prog != prev_prog:
+        exec('prog_col = col{}'.format(i))
+        i += 1
+        with prog_col:
+            st.header(prog)
         
+        #prog_cont = st.expander(prog, prog == "Land")
+        #with prog_cont:
+            
+    with prog_col:
+        #st.header(prog)
+        if strat != prev_strat:
+            container = st.container()
+            with container:
+                st.subheader(strat)
+        with container:
+            st.plotly_chart(strategy_chart(row['unique_id']), use_container_width=True)
 
+    prev_prog = prog
+    prev_strat = strat
+        
+st.map(dfp1)
+st.dataframe(dfp1)
 
 
 #st.write(df)
