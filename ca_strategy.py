@@ -29,6 +29,7 @@ df['unique_id'] = df.program + "_" + df.strategy + "_" + df.outcome
 # Read in point table
 dfp1 = pd.read_csv(in_points)
 dfp = pd.merge(dfp1, df, on='unique_id', how='outer')
+dfp.loc[dfp['name'].isna(), 'name'] = " "
 #dfp['latitude'] = dfp['latitude'].astype(float)
 #dfp['longitude'] = dfp['longitude'].astype(float)
 
@@ -53,15 +54,22 @@ def strategy_chart(unique_id):
                  y="outcome",
                  #hover_name="name",
                  #hovertext="name",
+                 hover_data={'outcome':False,
+                             'area_acres':':,.0f',
+                             },
+                 
                  orientation='h',
                  height=40,
                  width=500,
+                 color='name',
+                 color_discrete_sequence=px.colors.qualitative.Dark2,
                  )
-    fig.update_traces(marker_color='rgb(55,127,49)',
-                      marker_line_width=1,
+    fig.update_traces(#marker_color='rgb(55,127,49)',
+                      marker_line_width=0,
                       marker_line_color='rgb(40,110,30)',
                       width=100,
-                      hovertext="name",
+                      #hovertext="name",
+                      #hovertemplate = '%{y}, %{x:.0f} acres',
                       )
     fig.update_yaxes(ticklabelposition="inside",
                      title=None,
@@ -77,8 +85,9 @@ def strategy_chart(unique_id):
                       margin_r = 0,
                       margin_t = 10,
                       margin_b = 0,
-                      modebar_remove=['zoom', 'pan', 'select', 'autoScale', 'resetScale', 'zoomIn', 'zoomOut','lasso'],
+                      modebar_remove=['zoom', 'pan', 'select', 'autoScale', 'resetScale', 'zoomIn', 'zoomOut','lasso', 'toImage'],
                       #modebar_display=False,
+                      showlegend=False,
                       )
     annotation = "{} {}".format(human_format(float(df1.iloc[0]['2030 outcome target'])), df1.iloc[0]['units'])
     fig.add_annotation(text=annotation,
@@ -135,7 +144,7 @@ for index, row in df.iterrows():
     prev_strat = strat
         
 st.map(dfp1)
-st.dataframe(dfp1)
+st.dataframe(dfp)
 
 
 #st.write(df)
