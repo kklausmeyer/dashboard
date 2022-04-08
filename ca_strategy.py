@@ -53,7 +53,6 @@ def strategy_chart(unique_id):
                  x="area_acres",
                  y="outcome",
                  #hover_name="name",
-                 #hovertext="name",
                  hover_data={'outcome':False,
                              'area_acres':':,.0f',
                              },
@@ -62,7 +61,8 @@ def strategy_chart(unique_id):
                  height=40,
                  width=500,
                  color='name',
-                 color_discrete_sequence=px.colors.qualitative.Dark2,
+                 #color_discrete_sequence=px.colors.qualitative.Dark2,
+                 color_discrete_sequence=["green", 'olive', 'darkolivegreen', 'forestgreen', 'yellowgreen', 'olivedrab'],
                  )
     fig.update_traces(#marker_color='rgb(55,127,49)',
                       marker_line_width=0,
@@ -143,41 +143,35 @@ for index, row in df.iterrows():
     prev_prog = prog
     prev_strat = strat
         
-st.map(dfp1)
-st.dataframe(dfp)
 
+#px.set_mapbox_access_token(open(".mapbox_token").read())
+dfm = dfp.dropna(subset=['area_acres'])
+fig_map = px.scatter_mapbox(dfm,
+                         title="Initial map of locations",
+                            lat="latitude",
+                            lon="longitude",
+                            color="strategy",
+                            size="area_acres",
+                            hover_name="name",
+                            color_discrete_sequence=["green"],
+                            hover_data={'latitude':False,
+                                        'longitude':False,
+                                        'program':True,
+                                        'outcome':True,
+                                        
+                                        'area_acres':':,.0f',
+                             },
+                         width=1000,
+                         height=1000,
+                            #color_continuous_scale=px.colors.cyclical.IceFire,
+                            #size_max=15,
+                            zoom=5,
+                            )
+fig_map.update_layout(mapbox_style="open-street-map")
+#fig_map.update_geos(fitbounds="locations")
 
-#st.write(df)
-
-##@st.cache
-##def load_data(nrows):
-##    data = pd.read_csv(DATA_URL, nrows=nrows)
-##    lowercase = lambda x: str(x).lower()
-##    data.rename(lowercase, axis='columns', inplace=True)
-##    data[DATE_COLUMN] = pd.to_datetime(data[DATE_COLUMN])
-##    return data
-##
-### Create a text element and let the reader know the data is loading
-##data_load_state = st.text('Loading data...')
-##
-### Load 10,000 rows of data into the dataframe
-##data= load_data(10000)
-##
-###Notify the reader that the data was successfully loaded.
-##data_load_state.text('Done! (using st.cache)')
-##
-##if st.checkbox('Show raw data'):
-##    st.subheader('Raw data')
-##    st.write(data)
-##
-##st.subheader('Number of pickups by hour')
-##hist_values = np.histogram(
-##    data[DATE_COLUMN].dt.hour, bins=24, range=(0,24))[0]
-##st.bar_chart(hist_values)
-##
-##hour_to_filter = st.slider('hour', 0, 23, 17)
-##filtered_data = data[data[DATE_COLUMN].dt.hour == hour_to_filter]
-##st.subheader(f'Map of all pickups at {hour_to_filter}:00')
-##st.map(filtered_data)
+st.plotly_chart(fig_map)
+#st.map(dfp1)
+#st.dataframe(dfp)
 
 
