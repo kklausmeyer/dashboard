@@ -15,9 +15,9 @@ date = '20220331'
 
 
 
-outer_dir = os.path.split(os.getcwd())[0]
-in_table = os.path.join(os.getcwd(), 'tables', 'CA_strategy_dashboard_metrics_v1.2_Apr_2022.xlsx')
-in_points = os.path.join(outer_dir, 'ca_strategy_points_{}.csv'.format(date))
+table_dir = os.path.join(os.getcwd(), 'tables')
+in_table = os.path.join(table_dir, 'CA_strategy_dashboard_metrics_v1.2_Apr_2022.xlsx')
+in_points = os.path.join(table_dir, 'ca_strategy_points_{}.csv'.format(date))
 
 # Read in strategy table
 df = pd.read_excel(in_table, sheet_name='CA_strategy_outcomes')
@@ -62,7 +62,7 @@ def strategy_chart(unique_id):
                  width=500,
                  color='name',
                  #color_discrete_sequence=px.colors.qualitative.Dark2,
-                 color_discrete_sequence=["green", 'olive', 'darkolivegreen', 'forestgreen', 'yellowgreen', 'olivedrab'],
+                 color_discrete_sequence=["olive", 'green', 'darkolivegreen', 'forestgreen', 'yellowgreen', 'olivedrab'],
                  )
     fig.update_traces(#marker_color='rgb(55,127,49)',
                       marker_line_width=0,
