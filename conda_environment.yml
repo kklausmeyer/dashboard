@@ -4,6 +4,10 @@ channels:
 dependencies:
     - python
     - pandas
+    - jupyter
     - plotly
-
+    - matplotlib
+    - ulmo
+    - openpyxl
+    - geopandas
 
