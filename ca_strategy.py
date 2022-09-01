@@ -8,10 +8,7 @@ import plotly.express as px
 from datetime import date
 from PIL import Image
 #date = date.today().strftime("%Y%m%d")
-date = '20220331'
-
-
-
+date = '20220830'
 
 
 
@@ -28,12 +25,15 @@ df['unique_id'] = df.program + "_" + df.strategy + "_" + df.outcome
 
 # Read in point table
 dfp1 = pd.read_csv(in_points)
+dfp1 = dfp1.rename(columns={'units': 'units1'})
 dfp = pd.merge(dfp1, df, on='unique_id', how='outer')
 dfp.loc[dfp['name'].isna(), 'name'] = " "
 #dfp['latitude'] = dfp['latitude'].astype(float)
 #dfp['longitude'] = dfp['longitude'].astype(float)
 
-
+# Set up colors
+#https://www.w3schools.com/cssref/css_colors.asp
+color_dict = {'Land':['olive', 'green', 'darkolivegreen', 'forestgreen', 'yellowgreen', 'olivedrab'],'Water':['lightblue','navy','paleturquoise','deepskyblue','blue','darkslateblue'], 'Climate':['olive', 'green', 'darkolivegreen', 'forestgreen', ], 'Oceans':['olive', 'green', 'darkolivegreen', 'forestgreen']}
 
 
 def human_format(num):
@@ -50,11 +50,11 @@ def strategy_chart(unique_id):
     df1 = dfp.loc[dfp.unique_id == unique_id]
     #df1['2025 progress estimate'] = df1['2025 progress estimate'].astype(float)
     fig = px.bar(df1,
-                 x="area_acres",
+                 x="amount",
                  y="outcome",
                  #hover_name="name",
                  hover_data={'outcome':False,
-                             'area_acres':':,.0f',
+                             'amount':':,.0f',
                              },
                  
                  orientation='h',
@@ -62,7 +62,8 @@ def strategy_chart(unique_id):
                  width=500,
                  color='name',
                  #color_discrete_sequence=px.colors.qualitative.Dark2,
-                 color_discrete_sequence=["olive", 'green', 'darkolivegreen', 'forestgreen', 'yellowgreen', 'olivedrab'],
+				 
+                 color_discrete_sequence=color_dict[df1.iloc[0]['program']],
                  )
     fig.update_traces(#marker_color='rgb(55,127,49)',
                       marker_line_width=0,
@@ -145,21 +146,22 @@ for index, row in df.iterrows():
         
 
 #px.set_mapbox_access_token(open(".mapbox_token").read())
-dfm = dfp.dropna(subset=['area_acres'])
+dfm = dfp.dropna(subset=['amount'])
 fig_map = px.scatter_mapbox(dfm,
                          title="Initial map of locations",
                             lat="latitude",
                             lon="longitude",
                             color="strategy",
-                            size="area_acres",
+                            #size="amount",
                             hover_name="name",
-                            color_discrete_sequence=["green"],
+                            color_discrete_sequence=["green", 'blue'],
                             hover_data={'latitude':False,
                                         'longitude':False,
                                         'program':True,
                                         'outcome':True,
                                         
-                                        'area_acres':':,.0f',
+                                        'amount':':,.0f',
+										'units':True,
                              },
                          width=1000,
                          height=1000,
